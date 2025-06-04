@@ -59,16 +59,8 @@ RUN dnf install -y openssl-devel \
 
 FROM base-builder AS torch-builder
 
-# build cache without torch dependent packages
-# sentencepiece has linker issues otherwise
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,src=requirements/common.txt,dst=/requirements/common.txt,ro \
-    source /opt/rh/gcc-toolset-13/enable && \
-    sed -e 's/.*opencv.*//g; s/.*outlines.*//g; s/.*tensors.*//g; s/.*hf_xet.*//g' /requirements/common.txt | uv pip install -r /dev/stdin && \
-    uv pip list
-
 ARG MAX_JOBS
-ARG TORCH_VERSION=2.5.1
+ARG TORCH_VERSION=2.6.0
 ARG _GLIBCXX_USE_CXX11_ABI=1
 RUN --mount=type=cache,target=/root/.cache/uv \
     source /opt/rh/gcc-toolset-13/enable &&  \
@@ -80,7 +72,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     MAX_JOBS=${MAX_JOBS:-$(nproc)} \
     PYTORCH_BUILD_VERSION=${TORCH_VERSION} PYTORCH_BUILD_NUMBER=1 uv build --wheel --out-dir /torchwheels/
 
-ARG TORCHVISION_VERSION=0.20.1
+ARG TORCHVISION_VERSION=0.21.0
 ARG TORCHVISION_USE_NVJPEG=0
 ARG TORCHVISION_USE_FFMPEG=0
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -91,7 +83,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     BUILD_VERSION=${TORCHVISION_VERSION} \
     uv build --wheel --out-dir /torchwheels/ --no-build-isolation
 
-ARG TORCHAUDIO_VERSION=2.5.1
+ARG TORCHAUDIO_VERSION=2.6.0
 ARG BUILD_SOX=1
 ARG BUILD_KALDI=1
 ARG BUILD_RNNT=1
@@ -106,14 +98,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     MAX_JOBS=${MAX_JOBS:-$(nproc)} \
     BUILD_VERSION=${TORCHAUDIO_VERSION} \
     uv build --wheel --out-dir /torchwheels/ --no-build-isolation
-
-# build cache with torch dependent packages
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,src=requirements/common.txt,dst=/requirements/common.txt,ro \
-    source /opt/rh/gcc-toolset-13/enable && \
-    grep "outlines" requirements/common.txt | uv pip install -r /dev/stdin && \
-    grep "tensors" requirements/common.txt | uv pip install -r /dev/stdin && \
-    uv pip list
 
 
 ###############################################################
@@ -165,15 +149,6 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     sed -i -E -e 's/"setuptools.+",/"setuptools",/g' pyproject.toml && \
     cd opencv && git cherry-pick --no-commit $OPENCV_PATCH && cd .. && \
     python -m build --wheel --installer=uv --outdir /opencvwheels/
-
-# build opencv dependent packages
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,src=requirements/common.txt,dst=/requirements/common.txt,ro \
-    source /opt/rh/gcc-toolset-13/enable && \
-    uv pip install /opencvwheels/*.whl && \
-    uv pip list | grep opencv && \
-    grep "opencv" requirements/common.txt | uv pip install -r /dev/stdin --no-build-isolation && \
-    uv pip list
 
 ###############################################################
 # Stage to build numactl
