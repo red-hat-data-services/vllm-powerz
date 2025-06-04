@@ -30,6 +30,7 @@ ENV VIRTUAL_ENV=/opt/vllm
 ENV PATH=${VIRTUAL_ENV}/bin:/root/.cargo/bin:$PATH
 ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64:/usr/local/lib:/usr/lib64:/usr/lib
+ENV UV_LINK_MODE=copy
 
 # install gcc-13, python, rust, openblas
 # Note: A symlink for libatomic.so is created for gcc-13 (linker fails to find libatomic otherwise - reqd. for sentencepiece)
@@ -236,6 +237,7 @@ ENV VIRTUAL_ENV=/opt/vllm
 ENV PATH=${VIRTUAL_ENV}/bin:$PATH
 ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64:/usr/local/lib:/usr/lib64:/usr/lib
+ENV UV_LINK_MODE=copy
 
 # create artificial dependencies between stages for independent stages to build in parallel
 COPY --from=torch-builder /tmp/control /dev/null
