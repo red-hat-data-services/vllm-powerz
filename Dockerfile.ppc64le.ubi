@@ -198,7 +198,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,from=numa-builder,source=/numactl/,target=/numactl/,rw \
     --mount=type=bind,src=.,dst=/src/,rw \
     source /opt/rh/gcc-toolset-13/enable && export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1 && \
-    uv pip install pythran /opencvwheels/*.whl /arrowwheels/*.whl /torchwheels/*.whl && \
+    uv pip install pythran pybind11 /opencvwheels/*.whl /arrowwheels/*.whl /torchwheels/*.whl && \
     sed -i -e 's/.*torch.*//g' /src/pyproject.toml /src/requirements/*.txt && \
     uv pip install pandas /hf_wheels/*.whl && \
     make -C /numactl install && \
