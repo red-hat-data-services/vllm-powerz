@@ -1,7 +1,8 @@
 name: PR Reminder Comment Bot
+permissions:
+  pull-requests: write
 on:
-  pull_request_target:
-    types: [opened]
+    workflow_dispatch:
 jobs:
   pr_reminder:
     runs-on: ubuntu-latest
