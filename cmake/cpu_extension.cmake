@@ -175,7 +175,7 @@ if (AVX512_FOUND AND NOT AVX512_DISABLED)
     FetchContent_MakeAvailable(oneDNN)
     
     list(APPEND LIBS dnnl)
-elseif(POWER10_FOUND)
+elseif(POWER10_FOUND OR POWER9_FOUND)
     FetchContent_Declare(
         oneDNN
         GIT_REPOSITORY https://github.com/oneapi-src/oneDNN.git
@@ -231,7 +231,7 @@ if (AVX512_FOUND AND NOT AVX512_DISABLED)
         "csrc/cpu/quant.cpp"
         "csrc/cpu/shm.cpp"
         ${VLLM_EXT_SRC})
-elseif(POWER10_FOUND)
+elseif(POWER10_FOUND OR POWER9_FOUND)
     set(VLLM_EXT_SRC
         "csrc/cpu/quant.cpp"
         ${VLLM_EXT_SRC})
